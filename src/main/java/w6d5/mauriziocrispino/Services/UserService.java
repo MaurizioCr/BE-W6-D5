@@ -21,6 +21,13 @@ public class UserService {
     private DispitivoService dispitivoService;
 
     public User save(NewUserPayload body) {
+        userDAO.findByEmail(body.getEmail()).ifPresent(user -> {
+            try {
+                throw new BadRequestException("L'email " + body.getEmail() + " è già stata utilizzata");
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }
+        });
         Dispositivo dispositivo = dispitivoService.findById(body.getDispositivoID());
             User newUser = new User();
             newUser.setName(body.getName());
