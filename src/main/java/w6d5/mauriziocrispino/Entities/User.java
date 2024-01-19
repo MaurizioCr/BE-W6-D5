@@ -21,5 +21,6 @@ public class User {
     private String surname;
     private String username;
     private String email;
+    private String avatar;
 
 }
