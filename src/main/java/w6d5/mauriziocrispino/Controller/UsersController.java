@@ -3,8 +3,11 @@ package w6d5.mauriziocrispino.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import w6d5.mauriziocrispino.Entities.User;
+import w6d5.mauriziocrispino.Exception.BadRequestException;
 import w6d5.mauriziocrispino.Payloads.NewUserPayload;
 import w6d5.mauriziocrispino.Services.UserService;
 
@@ -18,8 +21,15 @@ public class UsersController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public User saveUser(@RequestBody NewUserPayload body) {
-        return userService.save(body);
+    public User saveUser(@RequestBody @Validated NewUserPayload body, BindingResult validation) {
+        if (validation.hasErrors()){
+            try {
+                throw new BadRequestException(validation.getAllErrors().toString());
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }}
+
+            return userService.save(body);
     }
 
 
@@ -37,7 +47,13 @@ public class UsersController {
 
 
     @PutMapping("/{userID}")
-    public User findByIdAndUpdate(@PathVariable UUID userId, @RequestBody NewUserPayload body) {
+    public User findByIdAndUpdate(@PathVariable UUID userId, @RequestBody @Validated NewUserPayload body,  BindingResult validation) {
+        if (validation.hasErrors()){
+            try {
+                throw new BadRequestException(validation.getAllErrors().toString());
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }}
         return userService.findByIdAndUpdate(userId, body);
     }
 
