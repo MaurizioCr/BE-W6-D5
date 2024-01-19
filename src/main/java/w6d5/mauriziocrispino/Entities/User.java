@@ -13,6 +13,7 @@ import java.util.UUID;
 @Entity
 public class User {
     @Id
+    @GeneratedValue
     private UUID id;
     @ManyToOne
     @JoinColumn(name = "dispositivoId")
