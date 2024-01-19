@@ -13,12 +13,14 @@ import w6d5.mauriziocrispino.Exception.NotFoundException;
 import w6d5.mauriziocrispino.Payloads.NewUserPayload;
 import w6d5.mauriziocrispino.Repositories.UserDAO;
 
+import java.util.UUID;
+
 @Service
 public class UserService {
     @Autowired
     UserDAO userDAO;
     @Autowired
-    private DispitivoService dispitivoService;
+    private DispositivoService dispositivoService;
 
     public User save(NewUserPayload body) {
         userDAO.findByEmail(body.getEmail()).ifPresent(user -> {
@@ -28,7 +30,7 @@ public class UserService {
                 throw new RuntimeException(e);
             }
         });
-        Dispositivo dispositivo = dispitivoService.findById(body.getDispositivoID());
+        Dispositivo dispositivo = dispositivoService.findById(body.getDispositivoID());
             User newUser = new User();
             newUser.setName(body.getName());
             newUser.setSurname(body.getSurname());
@@ -45,4 +47,29 @@ public class UserService {
         return userDAO.findAll(pageable);
     }
 
+    public User findById(UUID id) {
+        return userDAO.findById(id).orElseThrow(() -> new NotFoundException(id));
+    }
+
+    public User findByIdAndUpdate(UUID id, NewUserPayload body) {
+        User found = this.findById(id);
+
+        found.setName(body.getName());
+        found.setSurname(body.getSurname());
+        found.setUsername(body.getUsername());
+        found.setEmail(body.getEmail());
+        found.setAvatar(body.getAvatar());
+
+        if(found.getDispositivo().getId()!= body.getDispositivoID()) {
+            Dispositivo newDispositivo = dispositivoService.findById(body.getDispositivoID());
+            found.setDispositivo(newDispositivo);
+        }
+
+        return userDAO.save(found);
+    }
+
+    public void findByIdAndDelete(UUID id) {
+        User found = this.findById(id);
+        userDAO.delete(found);
+    }
 }
